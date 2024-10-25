@@ -8,23 +8,23 @@ export enum PongEntities {
 
 export type PongBoard = PongEntities[][]
 
-enum PongBallDirections { L, R, LT, LB, RT, RB }
+enum PongBallDirections { LB, L, LT, RB, R, RT, }
 
 export class Pong {
     private board: PongBoard | undefined
     private ball: PongBall = new PongBall()
-    private direction: PongBallDirections = PongBallDirections.R
+    public direction: PongBallDirections = PongBallDirections.R
     constructor(
         public playerA: PongPlayer,
         public playerB: PongPlayer,
         private width: number,
         private height: number
     ) {
+        this.createBoard()
         const halfWidth = Math.floor(this.width / 2)
         const halfHeight = Math.floor(this.height / 2)
         this.ball.setCoordinates(halfWidth, halfHeight)
-        this.createBoard()
-        this.updateEntities()
+        this.updateEntitiesPosition();
     }
 
     private cleanBoard() {
@@ -43,20 +43,28 @@ export class Pong {
         }
     }
 
-    private isPositionEmpty(x: number, y: number) {
-        if (!this.board) return false
-        if (x < 0 || this.width - 1 < x) return false
-        if (y < 0 || this.height - 1 < y) return false
-        return this.board[x][y] === PongEntities.EMPTY
+    private isXInBoard(x: number) {
+        return !(x < 0 || this.width - 1 < x)
     }
 
-    private updateBallPosition() {
+    private isYInBoard(y: number) {
+        return !(y < 0 || this.height - 1 < y)
+    }
+
+    private isPositionInBoard(x: number, y: number) {
+        return this.board && this.isXInBoard(x) && this.isYInBoard(y)
+    }
+
+    private isPositionEmpty(x: number, y: number) {
+        return this.isPositionInBoard(x, y) && this.board![x][y] === PongEntities.EMPTY
+    }
+
+    public updateBallPosition() {
         let newX, newY
         switch (this.direction) {
             case PongBallDirections.L:
                 newX = this.ball.x - 1;
                 newY = this.ball.y;
-                if (newX < 0) break;
                 if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                 } else {
@@ -67,9 +75,12 @@ export class Pong {
             case PongBallDirections.LT:
                 newX = this.ball.x - 1;
                 newY = this.ball.y - 1;
-                if (newX >= 0 && this.isPositionEmpty(newX, newY)) {
+                if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                     this.ball.y = newY
+                } else if (this.isYInBoard(newY)) {
+                    this.changeBallXDirection()
+                    this.updateBallPosition()
                 } else {
                     this.changeBallYDirection()
                     this.updateBallPosition()
@@ -78,18 +89,20 @@ export class Pong {
             case PongBallDirections.LB:
                 newX = this.ball.x - 1;
                 newY = this.ball.y + 1;
-                if (newX >= 0 && this.isPositionEmpty(newX, newY)) {
+                if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                     this.ball.y = newY
+                } else if (this.isYInBoard(newY)) {
+                    this.changeBallXDirection()
+                    this.updateBallPosition()
                 } else {
                     this.changeBallYDirection()
                     this.updateBallPosition()
                 }
                 break;
             case PongBallDirections.R:
-                newX = this.ball.x - 1;
+                newX = this.ball.x + 1;
                 newY = this.ball.y;
-                if (newX > this.width - 1) break;
                 if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                 } else {
@@ -100,9 +113,12 @@ export class Pong {
             case PongBallDirections.RT:
                 newX = this.ball.x + 1;
                 newY = this.ball.y - 1;
-                if (newX >= 0 && this.isPositionEmpty(newX, newY)) {
+                if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                     this.ball.y = newY
+                } else if (this.isYInBoard(newY)) {
+                    this.changeBallXDirection()
+                    this.updateBallPosition()
                 } else {
                     this.changeBallYDirection()
                     this.updateBallPosition()
@@ -111,9 +127,12 @@ export class Pong {
             case PongBallDirections.RB:
                 newX = this.ball.x + 1;
                 newY = this.ball.y + 1;
-                if (newX >= 0 && this.isPositionEmpty(newX, newY)) {
+                if (this.isPositionEmpty(newX, newY)) {
                     this.ball.x = newX
                     this.ball.y = newY
+                } else if (this.isYInBoard(newY)) {
+                    this.changeBallXDirection()
+                    this.updateBallPosition()
                 } else {
                     this.changeBallYDirection()
                     this.updateBallPosition()
@@ -122,15 +141,8 @@ export class Pong {
         }
     }
 
-    public updateBoard() {
-        if (!this.board) return
+    public updateEntitiesPosition() {
         this.cleanBoard()
-        this.updateBallPosition();
-        this.updateEntities();
-
-    }
-
-    private updateEntities() {
         this.board![this.ball.x][this.ball.y] = PongEntities.BALL
         this.playerA.getYCoordinates().forEach(y => {
             this.board![0][y] = PongEntities.PLAYER_1
@@ -165,8 +177,7 @@ export class Pong {
                     this.direction = PongBallDirections.RT
                     break;
             }
-        }
-        if (rigthDirections.includes(this.direction)) {
+        } else if (rigthDirections.includes(this.direction)) {
             switch (random) {
                 case 1:
                     this.direction = PongBallDirections.LB

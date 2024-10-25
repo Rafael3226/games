@@ -42,11 +42,14 @@ if (canvas) {
           console.log('Other Key Pressed:', event.code);
           break;
       }
+      pong.updateEntitiesPosition();
+      pongCanvas.draw(pong.getBoard());
     });
     setInterval(() => {
-      pong.updateBoard();
-      pongCanvas.draw(pong.getBoard())
-    }, 1000);
+      pong.updateBallPosition();
+      pong.updateEntitiesPosition();
+      pongCanvas.draw(pong.getBoard());
+    }, 100);
   }
 }
 
