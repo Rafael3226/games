@@ -46,10 +46,10 @@ if (canvas) {
       pongCanvas.draw(pong.getBoard());
     });
     setInterval(() => {
-      pong.updateBallPosition();
+      pong.tick();
       pong.updateEntitiesPosition();
       pongCanvas.draw(pong.getBoard());
-    }, 100);
+    }, 50);
   }
 }
 

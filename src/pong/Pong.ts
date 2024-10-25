@@ -11,7 +11,7 @@ export type PongBoard = PongEntities[][]
 enum PongBallDirections { LB, L, LT, RB, R, RT, }
 
 export class Pong {
-    private board: PongBoard | undefined
+    private board: PongBoard | null = null;
     private ball: PongBall = new PongBall()
     public direction: PongBallDirections = PongBallDirections.R
     constructor(
@@ -44,11 +44,11 @@ export class Pong {
     }
 
     private isXInBoard(x: number) {
-        return !(x < 0 || this.width - 1 < x)
+        return 0 <= x && x <= this.width - 1
     }
 
     private isYInBoard(y: number) {
-        return !(y < 0 || this.height - 1 < y)
+        return 0 <= y && y <= this.height - 1
     }
 
     private isPositionInBoard(x: number, y: number) {
@@ -59,86 +59,45 @@ export class Pong {
         return this.isPositionInBoard(x, y) && this.board![x][y] === PongEntities.EMPTY
     }
 
-    public updateBallPosition() {
-        let newX, newY
+    private updateBallPosition(x: number, y: number) {
+        if (this.isPositionEmpty(x, y)) {
+            this.ball.x = x
+            this.ball.y = y
+        } else if (this.isYInBoard(y)) {
+            this.changeBallXDirection()
+            this.tick()
+        } else {
+            this.changeBallYDirection()
+            this.tick()
+        }
+    }
+    public tick() {
+        let [newX, newY] = [this.ball.x, this.ball.y]
         switch (this.direction) {
             case PongBallDirections.L:
                 newX = this.ball.x - 1;
-                newY = this.ball.y;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                } else {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                }
                 break;
             case PongBallDirections.LT:
                 newX = this.ball.x - 1;
                 newY = this.ball.y - 1;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                    this.ball.y = newY
-                } else if (this.isYInBoard(newY)) {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                } else {
-                    this.changeBallYDirection()
-                    this.updateBallPosition()
-                }
                 break;
             case PongBallDirections.LB:
                 newX = this.ball.x - 1;
                 newY = this.ball.y + 1;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                    this.ball.y = newY
-                } else if (this.isYInBoard(newY)) {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                } else {
-                    this.changeBallYDirection()
-                    this.updateBallPosition()
-                }
                 break;
             case PongBallDirections.R:
                 newX = this.ball.x + 1;
-                newY = this.ball.y;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                } else {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                }
                 break;
             case PongBallDirections.RT:
                 newX = this.ball.x + 1;
                 newY = this.ball.y - 1;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                    this.ball.y = newY
-                } else if (this.isYInBoard(newY)) {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                } else {
-                    this.changeBallYDirection()
-                    this.updateBallPosition()
-                }
                 break;
             case PongBallDirections.RB:
                 newX = this.ball.x + 1;
                 newY = this.ball.y + 1;
-                if (this.isPositionEmpty(newX, newY)) {
-                    this.ball.x = newX
-                    this.ball.y = newY
-                } else if (this.isYInBoard(newY)) {
-                    this.changeBallXDirection()
-                    this.updateBallPosition()
-                } else {
-                    this.changeBallYDirection()
-                    this.updateBallPosition()
-                }
                 break;
         }
+        this.updateBallPosition(newX, newY)
     }
 
     public updateEntitiesPosition() {
