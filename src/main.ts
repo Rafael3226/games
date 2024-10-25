@@ -5,17 +5,20 @@ import { PongCanvas } from './pong/PongCanvas';
 import { PongPlayer } from './pong/PongPlayer';
 import './style.css'
 
-export const PONG_BOARD_HEIGHT = 11
-export const PONG_BOARD_WIDTH = 21
-export const PIXEL_DENSITY = 30
+export const PONG_BOARD_HEIGHT = 41
+export const PONG_BOARD_WIDTH = 41
+export const PIXEL_DENSITY = 10
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <canvas id="canvas" width="${PONG_BOARD_WIDTH * PIXEL_DENSITY}" height="${PONG_BOARD_HEIGHT * PIXEL_DENSITY}"></canvas>
+  <canvas 
+    id="canvas"
+    width="${PONG_BOARD_WIDTH * PIXEL_DENSITY}"
+    height="${PONG_BOARD_HEIGHT * PIXEL_DENSITY}"
+  ></canvas>
 `
 
-
-const P1 = new PongPlayer()
-const P2 = new PongPlayer()
+const P1 = new PongPlayer(3)
+const P2 = new PongPlayer(3)
 const ball = new PongBall();
 const board = new PongBoard(PONG_BOARD_WIDTH, PONG_BOARD_HEIGHT)
 const pong = new Pong(P1, P2, ball, board,);
