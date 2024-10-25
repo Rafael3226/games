@@ -46,6 +46,16 @@ export class Pong {
     public getBoard() {
         return this.board.getBoard()
     }
+
+    public getWinner() {
+        if (this.ball.x === 0) {
+            return 'PLAYER_2'
+        }
+        if (this.ball.x === this.board.width - 1) {
+            return 'PLAYER_1'
+        }
+        return null;
+    }
 }
 
 

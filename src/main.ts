@@ -30,6 +30,16 @@ if (canvas) {
   if (ctx) {
     const pongCanvas = new PongCanvas(ctx, PIXEL_DENSITY);
     pongCanvas.draw(pong.getBoard())
+    const interval = setInterval(() => {
+      pong.updateBallPosition()
+      pong.setEntitiesOnBoard()
+      pongCanvas.draw(pong.getBoard())
+      const winner = pong.getWinner()
+      if (winner) {
+        clearInterval(interval)
+        alert(`Winner: ${winner}`)
+      }
+    }, 50);
     document.addEventListener('keydown', function (event) {
       // Detect which key was pressed using event.code
       switch (event.code) {
@@ -53,11 +63,7 @@ if (canvas) {
       pong.setEntitiesOnBoard();
       pongCanvas.draw(pong.getBoard());
     });
-    setInterval(() => {
-      pong.updateBallPosition();
-      pong.setEntitiesOnBoard();
-      pongCanvas.draw(pong.getBoard());
-    }, 50);
+
   }
 }
 
